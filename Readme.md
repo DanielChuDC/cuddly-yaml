@@ -3,10 +3,14 @@
 1. [glib](https://github.com/GNOME/glib)  
 2. [libcyaml](https://github.com/tlsa/libcyaml)
 
-### Compile the source code
+### Compile the source code and clean
 
 ```bash
+# compile
 make 
+
+# clean
+make clean 
 ```
 
 ### Getting started
@@ -20,6 +24,9 @@ make
 1. Run the following command
 ```bash
 ./cuddly-yaml ./config.yaml
+
+# If you need to access directory with permission, kindly use
+sudo ./cuddly-yaml ./config.yaml
 ```
 
 ### Tested Enviornment
