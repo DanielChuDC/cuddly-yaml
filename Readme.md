@@ -1,3 +1,19 @@
+### Project description
+
+```bash
+/*==================================================*/
+// Task 2. Propose a housekeeping tool: to remove files based on maximum age (days), or maximum number to keep (using C programming language).
+//
+// support two configuration, maximum age in days, or maximum number of files to keep
+// maximum age: remove all files that are older than X days, maximum number of files: remove oldest files if the number of files are more than X files.
+// support yaml config file format to specify the directories and configurations
+//         GUI is not necessary, cli program with a YAML config file to read
+/*==================================================*/
+```
+
+### Demo image
+<img src="./img/demo.png">
+
 ### Prerequisite
 
 1. [glib](https://github.com/GNOME/glib)  
