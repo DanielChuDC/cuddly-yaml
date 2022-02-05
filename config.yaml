@@ -13,6 +13,6 @@ tasks:
       counts: 2
   - target_dir: /opt/test3
     max_age_in_days:
-      days: 2   # means delete for all files
+      days: -1   # -1 means delete for all files
     max_number_of_files:
       counts: 2
