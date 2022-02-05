@@ -426,7 +426,7 @@ int main(int argc, char *argv[])
                 GArray *daysArray = g_array_new(FALSE, FALSE, sizeof(int));
                 GArray *prioArray = g_array_new(FALSE, FALSE, sizeof(int));
 
-                printf("%s\n", BLACK);
+                printf("%s\n", CYAN);
                 printf("Reading Tasks config ... \n");
                 printf("%u. %s\n", i + 1, plan->tasks[i].target_dir);
                 printf("%u. The maximum age of files allowed in days is : %d\n", i + 1, plan->tasks[i].max_age_in_days->days - '0');
@@ -477,6 +477,7 @@ int main(int argc, char *argv[])
                 // prt_g_array_string(pathArray);
 
                 // deal with the max age first
+                printf("Removing based on maximum age in days in config.yaml\n");
                 int k = pathArray->len;
                 k -= 1; // array start from 0
 
@@ -501,13 +502,9 @@ int main(int argc, char *argv[])
                                 }
                         }
 
-                        printf("idx is : %d\n", idx);
                         // remove the file since the age is bigger than config's age only
-
-                        printf("remove_file [k]\n");
-
                         int res = remove_file(g_array_index(pathArray, char *, idx));
-                        printf("res [k] : %d\n", res);
+                        // printf("res [k] : %d\n", res);
                         if (res == 0)
                         {
                                 // remove Garray index
@@ -525,6 +522,7 @@ int main(int argc, char *argv[])
                 }
 
                 // deal with the max count second
+                printf("Removing based on maximum numbers of file in config.yaml\n");
                 k = pathArray->len;
                 k -= 1; // array start from 0
                 idx = 0;
