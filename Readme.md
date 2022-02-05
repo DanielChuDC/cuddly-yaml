@@ -1,6 +1,6 @@
 ### Project description
 
-```bash
+```c
 /*==================================================*/
 // Task 2. Propose a housekeeping tool: to remove files based on maximum age (days), or maximum number to keep (using C programming language).
 //
