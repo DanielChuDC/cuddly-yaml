@@ -11,3 +11,8 @@ tasks:
       days: 1
     max_number_of_files:
       counts: 2
+  - target_dir: /opt/test3
+    max_age_in_days:
+      days: 1
+    max_number_of_files:
+      counts: 2
