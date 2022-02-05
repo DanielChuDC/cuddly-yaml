@@ -3,10 +3,23 @@
 1. [glib](https://github.com/GNOME/glib)  
 2. [libcyaml](https://github.com/tlsa/libcyaml)
 
-### Getting started
+### Compile the source code
 
 ```bash
 make 
+```
+
+### Getting started
+
+1. Set the desired value in `config.yaml` in this directory
+
+```yaml
+    max_age_in_days:
+      days: -1 # means delete all
+``` 
+1. Run the following command
+```bash
+./cuddly-yaml ./config.yaml
 ```
 
 ### Tested Enviornment
@@ -28,3 +41,5 @@ make
 [Check file creation date in c](https://stackoverflow.com/questions/5929419/how-to-get-file-creation-date-in-linux)
 
 [Time and return value](https://www.ibm.com/docs/en/i/7.4?topic=functions-ctime-r-convert-time-character-string-restartable)
+
+[glib gstring](https://gist.github.com/johnkawakami/3551598)

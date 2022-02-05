@@ -32,7 +32,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <dirent.h> 
+#include <dirent.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
@@ -41,13 +41,12 @@
 #include <glib.h>
 
 #define MAX_INPUT_LENGTH 1000
-#define NORMAL_COLOR  "\x1B[0m"
-#define GREEN  "\x1B[32m"
-#define BLUE  "\x1B[34m"
+#define NORMAL_COLOR "\x1B[0m"
+#define GREEN "\x1B[32m"
+#define BLUE "\x1B[34m"
 #define BLACK "\033[0;30m"
 #define RED "\033[0;31m"
 #define CYAN "\033[0;36m"
-
 
 /* Top-level structure for storing a plan */
 struct plan
@@ -288,55 +287,101 @@ static const cyaml_config_t config = {
 /*==================================================*/
 
 // Using stat does not support on the EXT file system.
-void print_birth_time(char example[] ){
-    struct stat filestat;
+void print_birth_time(char example[])
+{
+        struct stat filestat;
 
-    stat(example,&filestat);
-    /* newline included in ctime() output */
+        stat(example, &filestat);
+        /* newline included in ctime() output */
 
-    //     printf(" File access time %s",
-    //             ctime(&filestat.st_atime)
-    //           );
-    //     printf(" File modify time %s",
-    //             ctime(&filestat.st_mtime)
-    //           );
-    //     printf("File changed time %s",
-    //             ctime(&filestat.st_ctime)
-    //           );
-    printf("  File birth time %s",
-            ctime(&filestat.st_birthtime)
-          );
-
+        //     printf(" File access time %s",
+        //             ctime(&filestat.st_atime)
+        //           );
+        //     printf(" File modify time %s",
+        //             ctime(&filestat.st_mtime)
+        //           );
+        //     printf("File changed time %s",
+        //             ctime(&filestat.st_ctime)
+        //           );
+        printf("  File birth time %s",
+               ctime(&filestat.st_birthtime));
 }
 
 int calc_time_diff_in_days(char example[])
 {
+        printf("  example name is :  %s\n ", example);
         struct stat filestat;
-        stat(example,&filestat);
-  
+        stat(example, &filestat);
+
         // mktime make sure the date is in local Time Zone
-        struct tm *t2 , *t3;
+        struct tm *t2, *t3;
         time_t t1 = time(NULL); // current time
         t2 = localtime(&t1);
         time_t currtime = mktime(t2);
         t3 = localtime(&filestat.st_birthtime);
         time_t filetime = mktime(t3);
-        double timediff = difftime(  currtime, filetime );
+        double timediff = difftime(currtime, filetime);
         printf("timediff in : %f\n", timediff);
         // to get day by second
         int day = timediff / 86400;
-        printf("This file has passed  : %d from its birth time\n", day);
+        printf("This file has passed  : %d days from its birth time\n", day);
         return day;
+}
+
+// void insert_glib_array(GArray *a, char example[])
+// {
+//         printf("  insert_glib_array name is :  %s\n ", example);
+
+//         g_array_append_val(a, example);
+// }
+
+// remove file function
+int remove_file(char example[])
+{
+        if (remove(example) == 0)
+        {
+                printf("Deleted successfully : %s\n", example);
+                return 0;
+        }
+        else
+                printf("Unable to delete the file : %s\n", example);
+        return -1;
+}
+
+// for glib sorting function
+int compare_ints(gpointer a, gpointer b)
+{
+        int *x = (int *)a;
+        int *y = (int *)b;
+        return *x - *y;
+}
+// for printing glib sorting function
+void prt_g_array(GArray *a)
+{
+        int i;
+        printf("Array holds: ");
+        for (i = 0; i < a->len; i++)
+                printf("%d ", g_array_index(a, int, i));
+        printf("\n");
+}
+
+// for printing glib sorting function
+void prt_g_array_string(GArray *a)
+{
+        printf("There are now %d items in the array\n", a->len);
+        int i;
+        printf("Array holds: \n");
+        for (i = 0; i < a->len; i++)
+        {
+                printf("%d ", i);
+                printf("%s \n", g_array_index(a, char *, i));
+        }
+        printf("\n");
 }
 
 int main(int argc, char *argv[])
 {
         printf("Welcome to housing keeping programme\n");
-
-        // Initialise with  Glist
-        GList* list = NULL;
-        list = g_list_append(list, "Hello world!");
-        printf("The first item is '%s'\n", g_list_first(list)-> data);
 
         // Ask for reading config from yaml
         cyaml_err_t err;
@@ -350,6 +395,7 @@ int main(int argc, char *argv[])
         /* Handle args */
         if (argc != ARG__COUNT)
         {
+
                 fprintf(stderr, "Usage:\n");
                 fprintf(stderr, "  %s <INPUT>\n", argv[ARG_PROG_NAME]);
                 printf("Option: <INPUT> |  e.g.: ./config.yaml | The full path with the yaml file name \n");
@@ -372,11 +418,25 @@ int main(int argc, char *argv[])
         printf("Project: %s\n", plan->name);
         for (unsigned i = 0; i < plan->tasks_count; i++)
         {
+                /*
+                // save into glib list for days or filename
+                // also save the days into priority list
+                // pop the day priority for finding the biggest value
+                // we use Garray as subst. for table and priority queue
+                // Initialise with  Garray & GString
+                */
+                GString *gs;
+                GArray *failedRemoveArray = g_array_new(FALSE, FALSE, sizeof(char *));
+                GArray *dirsArray = g_array_new(FALSE, FALSE, sizeof(char *));
+                GArray *pathArray = g_array_new(FALSE, FALSE, sizeof(char *));
+                GArray *daysArray = g_array_new(FALSE, FALSE, sizeof(int));
+                GArray *prioArray = g_array_new(FALSE, FALSE, sizeof(int));
+
                 printf("%s\n", BLACK);
                 printf("Reading Tasks config ... \n");
                 printf("%u. %s\n", i + 1, plan->tasks[i].target_dir);
-                printf("%u. The maximum age of files allowed in days is : %d\n", i + 1, plan->tasks[i].max_age_in_days->days);
-                printf("%u. The maximum munber of files allowed is :%d\n", i + 1, plan->tasks[i].max_number_of_files->counts);
+                printf("%u. The maximum age of files allowed in days is : %d\n", i + 1, plan->tasks[i].max_age_in_days->days - '0');
+                printf("%u. The maximum munber of files allowed is :%d\n", i + 1, plan->tasks[i].max_number_of_files->counts - '0');
                 printf(" \n");
 
                 // List file in the directory
@@ -389,30 +449,162 @@ int main(int argc, char *argv[])
                 {
                         while ((dir = readdir(d)) != NULL)
                         {
-                                //Condition to check regular file.
-                                if(dir->d_type==DT_REG){
+                                // Condition to check regular file.
+                                if (dir->d_type == DT_REG)
+                                {
                                         printf("%s", GREEN);
-                                        full_path[0]='\0';
-                                        strcat(full_path,plan->tasks[i].target_dir);
-                                        strcat(full_path,"/");
-                                        strcat(full_path,dir->d_name);
-                                        printf("%s\n",full_path);
+                                        full_path[0] = '\0';
+                                        strcat(full_path, plan->tasks[i].target_dir);
+                                        strcat(full_path, "/");
+                                        strcat(full_path, dir->d_name);
+                                        printf("%s\n", full_path);
+
                                         // time_t filedate = print_birth_time(full_path);
 
-                                        calc_time_diff_in_days(full_path); // get the file day 
-                                        // save into glib list for days and fileid? or filename
-                                        // also save the days into priority list
-                                        // pop the day priority for finding the biggest value
+                                        int day = calc_time_diff_in_days(full_path); // get the file day
+
+                                        gs = g_string_new(full_path); // use new gstring becaue char* and char[] keep pointing to the last element.
+                                        printf("  insert_glib_array name is :  %s\n ", gs->str);
+                                        g_array_append_val(pathArray, *gs);
+                                        g_array_append_val(daysArray, day);
+                                        g_array_append_val(prioArray, day);
                                 }
-                                else 
+                                else
                                 {
-                                        printf("%s%s\n",RED, dir->d_name);
-                                }  
+                                        // append to Garray for view
+                                        g_array_append_val(dirsArray, dir->d_name);
+                                        printf("%s%s\n", RED, dir->d_name);
+                                }
                         }
                         closedir(d);
                 }
-                // deal with the age first
-                
+                // lets sort the prioArray
+                printf("Sorting for max age now\n");
+                g_array_sort(prioArray, (GCompareFunc)compare_ints);
+                // prt_g_array(prioArray);
+                prt_g_array_string(pathArray);
+
+                // deal with the max age first
+                int k = pathArray->len;
+                k -= 1; // array start from 0
+                printf("deal with the k first: %d\n", k);
+                int idx = 0;
+                while (k >= 0)
+                {
+                        printf("deal with the k : %d\n", k);
+                        if (g_array_index(prioArray, int, k) <= plan->tasks[i].max_age_in_days->days - '0')
+                        {
+                                printf("array start from 0\n");
+                                break;
+                        }
+
+                        // prioArray[k]'s value need to be remove
+                        // using for loop to find the daysArray[i] = prioArray[k]
+                        for (int i = 0; i < daysArray->len; i++)
+                        {
+                                if (g_array_index(daysArray, int, i) == g_array_index(prioArray, int, k))
+                                {
+                                        idx = i;
+                                        break;
+                                }
+                        }
+
+                        printf("idx is : %d\n", idx);
+                        // remove the file since the age is bigger than config's age only
+
+                        printf("remove_file [k]\n");
+
+                        int res = remove_file(g_array_index(pathArray, char *, idx));
+                        printf("res [k] : %d\n", res);
+                        if (res == 0)
+                        {
+                                // remove Garray index
+                                g_array_remove_index(pathArray, idx);
+                                g_array_remove_index(daysArray, idx);
+                                g_array_remove_index(prioArray, idx);
+                        }
+                        else
+                        {
+                                // append failed_to_remove_file to Garray for view
+                                g_array_append_val(failedRemoveArray, g_array_index(pathArray, char *, idx));
+                        }
+                        prt_g_array_string(pathArray);
+                        k--;
+                }
+
+                // deal with the max count second
+                k = pathArray->len;
+                k -= 1; // array start from 0
+                idx = 0;
+                int limit = plan->tasks[i].max_number_of_files->counts - '0';
+                int diff = k - limit + 1; // +1 because k already minus 1
+                while (k >= 0)
+                {
+                        if (diff < 0)
+                        {
+                                printf("This directory already fulfil number of max files : %d\n", limit);
+                                break;
+                        }
+
+                        // remove the length one by one
+                        while (diff > 0)
+                        {
+                                // get the last item of the prioArray // oldest
+                                int oldest = g_array_index(prioArray, int, k);
+                                int key = 0;
+                                // oldest's value need to be remove
+                                // using for loop to find the daysArray[?] = oldest
+                                for (int i = 0; i < daysArray->len; i++)
+                                {
+                                        if (g_array_index(daysArray, int, i) == oldest)
+                                        {
+                                                key = i;
+                                                break;
+                                        }
+                                }
+
+                                // now we got oldest // delete it now
+                                int res = remove_file(g_array_index(pathArray, char *, key));
+                                if (res == 0)
+                                {
+                                        // remove Garray index
+                                        g_array_remove_index(pathArray, key);
+                                        g_array_remove_index(daysArray, key);
+                                        g_array_remove_index(prioArray, key);
+                                }
+                                else
+                                {
+                                        // append failed_to_remove_file to Garray for view
+                                        g_array_append_val(failedRemoveArray, g_array_index(pathArray, char *, key));
+                                }
+                                diff--;
+                        }
+
+                        k--;
+                }
+
+                // conclusion
+                printf("this is conclusion\n");
+                // for (int i = 0; i <= failedRemoveArray->len; i++)
+                // {
+                //         printf("This file cannot be removed. : %s\n", g_array_index(failedRemoveArray, char *, i));
+                // }
+                printf("%d", dirsArray->len);
+                // if (dirsArray->len != 0)
+                // {
+                //         for (int i = 0; i < dirsArray->len; i++)
+                //         {
+                //                 printf("If you want to clean this directory, please add to config.yaml : %s\n", g_array_index(failedRemoveArray, char *, i));
+                //         }
+                // }
+
+                // free mem
+                g_array_free(pathArray, TRUE);
+                g_array_free(daysArray, TRUE);
+                g_array_free(prioArray, TRUE);
+                g_array_free(dirsArray, TRUE);
+                g_array_free(failedRemoveArray, TRUE);
+                g_string_free(gs, TRUE);
         }
 
         // after read the yaml
@@ -420,6 +612,6 @@ int main(int argc, char *argv[])
 
         // keep a reference of this ending timing, lastRun
         // So currDate - lastRun < 24 hours / 1 day, do not recalculate the hashtable
-        
+
         return 0;
 }
