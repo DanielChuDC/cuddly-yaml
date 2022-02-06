@@ -66,3 +66,5 @@ sudo ./cuddly-yaml ./config.yaml
 [Time and return value](https://www.ibm.com/docs/en/i/7.4?topic=functions-ctime-r-convert-time-character-string-restartable)
 
 [glib gstring](https://gist.github.com/johnkawakami/3551598)
+
+[Unit Testing](https://github.com/Snaipe/Criterion)
