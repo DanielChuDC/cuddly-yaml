@@ -398,7 +398,6 @@ int main(int argc, char *argv[])
 
         // Ask for reading config from yaml
         cyaml_err_t err;
-        struct numbers *n;
         enum
         {
                 ARG_PROG_NAME,
@@ -597,21 +596,22 @@ int main(int argc, char *argv[])
                 
                 // conclusion
                 printf("Cleaning up and freed up memory ...\n");
-                printf("This directory left %d files in total.\n", dirsArray->len);
+                //printf("This directory left %d dir or in total.\n", dirsArray->len);
 
 
 
                 // free mem
+                //free(d);  // free by closedir(d);
+                free(dir);
+                g_string_free(gs, FALSE);
                 g_array_free(pathArray, TRUE);
                 g_array_free(daysArray, TRUE);
                 g_array_free(prioArray, TRUE);
                 g_array_free(dirsArray, TRUE);
                 g_array_free(failedRemoveArray, TRUE);
-                //g_string_free(gs, TRUE);
-        }
 
-        // after read the yaml
-        // need to check for permission
+        }
+        cyaml_free(&config, &plan_schema, plan, 0); // licyaml  free function
 
         // keep a reference of this ending timing, lastRun
         // So currDate - lastRun < 24 hours / 1 day, do not recalculate the hashtable
