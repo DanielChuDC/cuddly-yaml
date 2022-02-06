@@ -321,11 +321,9 @@ int calc_time_diff_in_days(char example[])
         t3 = localtime(&filestat.st_birthtime);
         time_t filetime = mktime(t3);
         double timediff = difftime(currtime, filetime);
-        // printf("timediff in : %f\n", timediff);
-
         // to get day by second
         int day = timediff / 86400;
-        printf("This file has passed  : %d days from its birth time\n", day);
+        // printf("This file has passed  : %d days from its birth time\n", day);
         return day;
 }
 
@@ -338,7 +336,7 @@ int remove_file(char example[])
                 return 0;
         }
         else
-                printf("Unable to delete the file : %s\n", example);
+                printf("Unable to delete the file : %s . Please check your permission or run with sudo\n", example);
         return -1;
 }
 
@@ -372,6 +370,27 @@ void prt_g_array_string(GArray *a)
         }
         printf("\n");
 }
+
+// for printing glib sorting function with multiple array for table
+void prt_g_array_table(GArray *file, GArray *days, GArray *prio)
+{
+        printf("There are now %d items in the array\n", file->len);
+        int i;
+        printf("GArray holds: \n");
+        printf(" index  | ");
+        printf(" priority  | ");
+        printf(" days  | ");
+        printf(" file  | \n");
+        for (i = 0; i < file->len; i++)
+        {
+                printf("     %d  | ", i);
+                printf("     %d     | ", g_array_index(prio, int, i));
+                printf("     %d | ", g_array_index(days, int, i));
+                printf("  %s | \n", g_array_index(file, char *, i));
+        }
+        printf("\n");
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -451,7 +470,7 @@ int main(int argc, char *argv[])
                                         strcat(full_path, plan->tasks[i].target_dir);
                                         strcat(full_path, "/");
                                         strcat(full_path, dir->d_name);
-                                        printf("%s\n", full_path);
+                                        // printf("%s\n", full_path);
                                         int day = calc_time_diff_in_days(full_path); // get the file day
 
                                         gs = g_string_new(full_path); // use new gstring becaue char* and char[] keep pointing to the last element.
@@ -517,9 +536,10 @@ int main(int argc, char *argv[])
                                 // append failed_to_remove_file to Garray for view
                                 g_array_append_val(failedRemoveArray, g_array_index(pathArray, char *, idx));
                         }
-                        prt_g_array_string(pathArray);
+                        prt_g_array_table(pathArray, daysArray, prioArray);
                         k--;
                 }
+                printf("--- Completed removing based on maximum age in days in config.yaml. ---\n");
 
                 // deal with the max count second
                 printf("Removing based on maximum numbers of file in config.yaml\n");
@@ -530,14 +550,15 @@ int main(int argc, char *argv[])
                 int diff = k - limit + 1; // +1 because k already minus 1
                 while (k >= 0)
                 {
-                        if (diff < 0)
+                        prt_g_array_table(pathArray, daysArray, prioArray);
+                        if (diff <= 1)
                         {
                                 printf("This directory already fulfil number of max files : %d\n", limit);
                                 break;
                         }
 
                         // remove the length one by one
-                        while (diff > 0)
+                        while (diff > 1)
                         {
                                 // get the last item of the prioArray // oldest
                                 int oldest = g_array_index(prioArray, int, k);
@@ -572,7 +593,8 @@ int main(int argc, char *argv[])
 
                         k--;
                 }
-
+                printf("--- Removing based on maximum numbers of file in config.yaml ---\n");
+                
                 // conclusion
                 printf("Cleaning up and freed up memory ...\n");
                 printf("This directory left %d files in total.\n", dirsArray->len);
@@ -585,7 +607,7 @@ int main(int argc, char *argv[])
                 g_array_free(prioArray, TRUE);
                 g_array_free(dirsArray, TRUE);
                 g_array_free(failedRemoveArray, TRUE);
-                g_string_free(gs, TRUE);
+                //g_string_free(gs, TRUE);
         }
 
         // after read the yaml

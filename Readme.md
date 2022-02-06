@@ -12,7 +12,7 @@
 ```
 
 ### Demo image
-<img src="./img/demo.png">
+<img src="./img/demo-cuddly-yaml.gif">
 
 ### Prerequisite
 
